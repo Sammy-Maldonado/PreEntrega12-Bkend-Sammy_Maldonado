@@ -45,11 +45,14 @@ export const generateToken = (user) => {
   return jwt.sign(user, config.jwt.SECRET, { expiresIn: '1d' });
 }
 
-export const authRoles = (role) => {
+export const authRoles = (roles) => {
   //Si llegué a este punto, es porque TENGO un usuario creado
   return async (req, res, next) => {
-    if (req.user.role !== role) return res.status(403).send({ status: "error", error: "Acceso Denegado" })
-    next();
+    if (roles.includes(req.user.role)) {
+      // Permitir acceso para usuarios con los roles especificados
+      return next();
+    }
+    return res.status(403).send({ status: "error", error: "Acceso Denegado" })
   }
 }
 

@@ -18,9 +18,9 @@ const getProducts = async (req, res) => {
     const nextLink = hasNextPage ? `/api/products?page=${nextPage}` : null;
 
     const paginateDTO = new ProductsDTO.GetProductsDTO(products, totalPages, prevPage, nextPage, page, hasPrevPage, hasNextPage, prevLink, nextLink)
-    const result = {...paginateDTO}
+    const result = { ...paginateDTO }
     res.send(result);
-    
+
   } catch (error) {
     console.log(error);
     res.status(500).send({ status: "error", error: 'Error interno del servidor' });
@@ -41,8 +41,11 @@ const addProduct = async (req, res) => {
       return res.status(400).send({ status: 'error', error: 'El código de producto ya está en uso' });
     }
 
-    const productDTO = new ProductsDTO.CreateProductDTO(req.body);
-    const product = {...productDTO};
+    //Obtengo los datos del usuario para vincularlo como owner
+    const user = req.user;
+
+    const productDTO = new ProductsDTO.CreateProductDTO(req.body, user);
+    const product = { ...productDTO };
 
     const result = await productsService.createProduct(product);
     res.send({ status: "success", message: "Producto agregado correctamente", payload: result });
@@ -74,7 +77,7 @@ const updateProduct = async (req, res) => {
 
     //Verificando que el producto exista en la base de datos
     const productExists = await productsService.getProductById(productId);
-    if(!productExists) {
+    if (!productExists) {
       return res.status(404).send({ status: "error", message: "Producto no encontrado, por favor, ingrese una ID válida" });
     }
 
@@ -90,9 +93,21 @@ const updateProduct = async (req, res) => {
 const deleteProduct = async (req, res) => {
   try {
     const productId = req.params.pId;
-    const result = await productsService.deleteProduct(productId);
-    console.log(result);
-    res.send({ status: "success", message: "Su producto ha sido eliminado con éxito" })
+
+    const productToDelete = await productsService.getProductById(productId);
+    if (!productToDelete) {
+      return res.status(404).send({ status: "error", message: "Producto no encontrado, por favor, ingrese una ID válida" })
+    }
+
+    //Verificando que el "admin" pueda borrar cualquier producto aunque no sea owner y que el usuario premium solo pueda borrar los productos que le pertenecen
+
+    if (req.user.role === "admin" || (req.user.role === "premium" && productToDelete.owner === req.user.email)) {
+      const result = await productsService.deleteProduct(productId);
+      console.log(result);
+      res.send({ status: "success", message: "Su producto ha sido eliminado con éxito" })
+    } else {
+      return res.status(403).send({ status: "error", error: "Acceso Denegado" });
+    }
   } catch (error) {
     console.error(error);
     res.status(500).send({ status: "error", error: 'Error interno del servidor' });

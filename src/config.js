@@ -24,11 +24,16 @@ export default {
     PWD: process.env.ADMIN_PWD
   },
   jwt: {
+    COOKIE: process.env.JWT_COOKIE,
     SECRET: process.env.JWT_SECRET
   },
   github: {
     clientID: process.env.CLIENTID,
     clientSecret: process.env.CLIENTSECRET,
     callbackURL: process.env.CALLBACKURL
+  },
+  mailer: {
+    USER: process.env.MAILER_USER,
+    PASSWORD: process.env.MAILER_PASSWORD
   }
 }

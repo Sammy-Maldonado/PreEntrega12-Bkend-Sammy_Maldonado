@@ -1,14 +1,25 @@
 import { generateToken, validatePassword, createHash } from "../services/auth.js";
 import UsersDTO from "../dtos/user/UsersDTO.js";
 import { usersService } from '../services/index.js';
+import MailingService from "../services/MailingService.js";
+import DTemplates from "../constants/DTemplates.js";
+import config from "../config.js";
 
 const getCurrent = (req,res) => {
   const currentUser = req.user;
   res.sendSuccessWithPayload(currentUser);
 }
 
-const register = (req, res) => {
-  res.sendSuccess();
+const register = async (req, res) => {
+  const mailingService = new MailingService();
+  try {
+    const result = await mailingService.sendMail(req.user.email, DTemplates.WELCOME, {user: req.user})
+    console.log(result);
+    res.sendSuccess("Registered");
+  } catch (error) {
+    res.sendInternalError(error);
+  }
+  
 }
 
 const loginWithToken = (req, res) => {
@@ -16,7 +27,7 @@ const loginWithToken = (req, res) => {
 
   //Aqui envío el token generado para el usuario, al frontend, por una cookie.
   //El siguiente paso es extraer el token de la cookie con la estrategia 'jwt' -> passport.config.js :72
-  res.cookie('authToken', token, {
+  res.cookie(config.jwt.COOKIE, token, {
     maxAge: 1000 * 3600 * 24,   //1seg*1hr*24hrs = 24hrs
     httpOnly: true
   }).sendSuccess("Logged In")   //Logeado con exito
@@ -29,7 +40,7 @@ const githubLoginWithToken = (req, res) => {
   const user = {...userDTO}
   const accessToken = generateToken(user);
 
-  res.cookie('authToken', accessToken, {
+  res.cookie(config.jwt.COOKIE, accessToken, {
     maxAge: 1000*3600*24,
     httpOnly:true
   }).sendSuccess("Github login success")
@@ -37,7 +48,7 @@ const githubLoginWithToken = (req, res) => {
 
 const logout = async (req, res) => {
   // Borra la cookie en la respuesta
-  res.clearCookie('authToken');
+  res.clearCookie(config.jwt.COOKIE);
   // Envía una respuesta JSON que indica el logout exitoso
   res.sendSuccess("Logged Out");
 }

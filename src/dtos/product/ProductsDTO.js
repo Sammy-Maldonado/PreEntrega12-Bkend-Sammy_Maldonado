@@ -1,11 +1,12 @@
 class CreateProductDTO {
-  constructor(product) {
+  constructor(product, user) {
     this.title = product.title,
     this.price = product.price,
     this.code = product.code,
     this.stock = product.stock,
     this.category = product.category,
-    this.thumbnails = product.thumbnails
+    this.thumbnails = product.thumbnails,
+    this.owner = user.email
   }
 }
 

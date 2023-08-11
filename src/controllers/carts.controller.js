@@ -101,6 +101,19 @@ const addProductToCart = async (req, res) => {
       throw new Error('El Id del producto debe ser mayor que 0.');
     }
 
+    //Buscando el producto para verificar su dueño
+    const product = await productsService.getProductById(pid);
+    console.log(product);
+    if (!product) {
+      throw new Error('Producto no encontrado, por favor, ingrese una ID válida')
+    }
+
+    //Verificando que el usuario premium no pueda agregar su propio producto al carrito
+
+    if (req.user.role === "premium" && product.owner === req.user.email) {
+      return res.status(403).send({ status: "error", error: "No puede agregar a su carrito un producto que le pertenece" });
+    }
+
     const updatedCart = await cartsService.addProductToCart(cid, pid, quantity);
     if (updatedCart) {
       res.status(200).send({ status: "success", message: `Producto agregado correctamente al carrito '${req.params.cid}'`, payload: updatedCart })

@@ -6,10 +6,10 @@ const router = Router();
 
 /* MongoDB */
 router.get('/', productsController.getProducts);
-router.post('/', passportCall('jwt', { strategyType: 'jwt', sessions: false }), authRoles("admin"), productsController.addProduct);
+router.post('/', passportCall('jwt', { strategyType: 'jwt', sessions: false }), authRoles(["admin", "premium"]), productsController.addProduct);
 router.get('/:pId', productsController.getProductById);
-router.put('/:pId', passportCall('jwt', { strategyType: 'jwt', sessions: false }), authRoles("admin"), productsController.updateProduct)
-router.delete('/:pId', passportCall('jwt', { strategyType: 'jwt', sessions: false }), authRoles("admin"), productsController.deleteProduct);
+router.put('/:pId', passportCall('jwt', { strategyType: 'jwt', sessions: false }), authRoles(["admin", "premium"]), productsController.updateProduct)
+router.delete('/:pId', passportCall('jwt', { strategyType: 'jwt', sessions: false }), authRoles(["admin", "premium"]), productsController.deleteProduct);
 
 
 export default router;

@@ -15,7 +15,7 @@ class SuperAdminDTO {
     this.id = 0,
       this.name = "Admin",
       this.email = config.admin.EMAIL,
-      this.role = "superadmin"
+      this.role = "admin"
   }
 }
 
