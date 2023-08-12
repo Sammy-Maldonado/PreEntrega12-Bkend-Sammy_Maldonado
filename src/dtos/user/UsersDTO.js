@@ -46,10 +46,17 @@ class GithubTokenDTO {
   }
 }
 
+class RestoreTokenDTO {
+  constructor(user) {
+    this.email = user.email
+  }
+}
+
 export default {
   SuperAdminDTO,
   PassportUserDTO,
   GithubUserDTO,
   GithubTokenDTO,
-  RegisterUserDTO
+  RegisterUserDTO,
+  RestoreTokenDTO
 }

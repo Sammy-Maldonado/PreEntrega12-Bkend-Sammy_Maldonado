@@ -15,6 +15,7 @@ router.get('/login', passportCall('jwt', { strategyType: 'jwt', sessions: false,
 router.get('/profile', passportCall('jwt', { strategyType: 'jwt', sessions: false }), viewsController.profile);
 router.get('/products/:id', viewsController.getProductById);
 router.get('/carts/:cid', viewsController.getCartById);
+router.get('/restoreRequest', passportCall('jwt', { strategyType: 'jwt', sessions: false}), authNotLogged, viewsController.restoreRequest);
 router.get('/restorePassword', passportCall('jwt', { strategyType: 'jwt', sessions: false }), authNotLogged, viewsController.restorePassword);
 
 export default router;

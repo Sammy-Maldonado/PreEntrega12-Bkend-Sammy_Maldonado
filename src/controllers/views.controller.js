@@ -1,4 +1,6 @@
 import { productsService, cartsService } from '../services/index.js';
+import jwt from 'jsonwebtoken';
+import config from '../config.js';
 
 const getProducts = async (req, res) => {
   const products = await productsService.getAllProducts().lean();
@@ -76,9 +78,21 @@ const getCartById = async (req, res) => {
   }
 }
 
-const restorePassword = async (req, res) => {
-  res.render('restorePassword')
+const restoreRequest = (req,res) => {
+  res.render('restoreRequest')
 }
+
+const restorePassword = async (req, res) => {
+  const {token} = req.query;
+  try {
+    const validToken = jwt.verify(token, config.jwt.SECRET)
+    //Aquí verificaria si está en la WhiteList, y si no, también lo mando a inválido.
+    res.render('restorePassword')
+  } catch (error) {
+    return res.render('invalidToken');
+  }
+}
+
 
 export default {
   getProducts,
@@ -90,5 +104,6 @@ export default {
   profile,
   getProductById,
   getCartById,
+  restoreRequest,
   restorePassword
 }

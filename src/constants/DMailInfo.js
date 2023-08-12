@@ -10,5 +10,15 @@ export default {
         cid:"banner"
       }
     ]
+  },
+  restore: {
+    subject: "Restaurar contraseña",
+    attachments: [
+      {
+        filename: 'banner.png',
+        path: `${__dirname}/public/images/erp2.png`,
+        cid:"banner"
+      }
+    ]
   }
 }

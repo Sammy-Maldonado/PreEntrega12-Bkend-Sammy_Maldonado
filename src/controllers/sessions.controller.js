@@ -4,6 +4,7 @@ import { usersService } from '../services/index.js';
 import MailingService from "../services/MailingService.js";
 import DTemplates from "../constants/DTemplates.js";
 import config from "../config.js";
+import jwt from 'jsonwebtoken';
 
 const getCurrent = (req,res) => {
   const currentUser = req.user;
@@ -53,22 +54,40 @@ const logout = async (req, res) => {
   res.sendSuccess("Logged Out");
 }
 
-const restorePassword = async (req,res) => {
-  const {email, password} = req.body;
-  
-  //¿El usuario si existe?
+const restoreRequest = async(req,res) => {
+  const {email} = req.body;
+  if(!email) return res.sendBadRequest('No se proporcionó un email');
   const user = await usersService.getUserBy({email});
-  if(!user) return res.status(400).send({status:"error", error:"User doesn't exist"})
+  if (!user) return res.sendBadRequest('Email no válido');
+  //Hasta aquí todo bien. Creamos un restoreToken.
+  const userDTO = new UsersDTO.RestoreTokenDTO({email});
+  const newUser = {...userDTO}
+  const restoreToken = generateToken(newUser, '24h');
+  //En caso de usar WhiteList, aca se guardaria el token en la White List
+  const mailingService = new MailingService();
+  const result = await mailingService.sendMail(user.email, DTemplates.RESTORE, {restoreToken})
+  console.log(result);
+  res.sendSuccess('Correo Enviado')
+}
 
-  //Verificar que no se repita el mismo password
-  const isSamePassword = await validatePassword(password, user.password);
-  if(isSamePassword) return res.status(400).send({status:"error", error: "Cannot replace password with current password"})
-  //Si es el usuario y es un password diferente, ahora si, actualizamos su contraseña
-  //OJO, este password es plano nuevamente, debemos encriptarlo
-  const newHashedPassword = await createHash(password);
-  await usersService.updateOneUser(email, newHashedPassword);
-  res.status(200).send({status:"success", message: "Contraseña restablecida exitosamente"});
+const restorePassword = async (req,res) => {
+  const {password, token} = req.body;
+  try {
+    const tokenUser = jwt.verify(token, config.jwt.SECRET);
+    const user = await usersService.getUserBy({email: tokenUser.email});
+
+    //Verificando que la constraseña del usuario no sea la misma que ya tenía
+    const isSamePassword = await validatePassword(password, user.password);
+    if(isSamePassword) return res.sendBadRequest('Su contraseña es la misma');
+    const newHasedPassword = await createHash(password);
+    await usersService.updateUser(user._id, {password: newHasedPassword});
+    //Aquí se borraría el token del WhiteList
+    res.sendSuccess('Contraseña Cambiada');
+  } catch (error) {
+    console.log(error);
+  }
 };
+
 
 export default {
   getCurrent,
@@ -77,5 +96,6 @@ export default {
   githubInit,
   githubLoginWithToken,
   logout,
-  restorePassword,
+  restoreRequest,
+  restorePassword
 }
