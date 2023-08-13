@@ -11,6 +11,10 @@ export default class UsersService {
     return this.dao.getUserBy(params);
   }
 
+  getUserById = (id) => {
+    return this.dao.getUserById(id);
+  }
+
   createUser = (user) => {
     return this.dao.createUser(user);
   }

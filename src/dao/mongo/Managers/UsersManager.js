@@ -9,6 +9,10 @@ export default class UsersManager {
     return userModel.findOne(params).lean();
   }
 
+  getUserById = (id) => {
+    return userModel.findById(id);
+  }
+
   createUser = (user) => {
     return userModel.create(user);
   }

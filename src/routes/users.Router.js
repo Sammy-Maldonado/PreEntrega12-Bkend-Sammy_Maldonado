@@ -1,12 +1,13 @@
 import { Router } from "express";
 import { authRoles, passportCall } from "../services/auth.js";
+import usersController from "../controllers/users.controller.js";
 
 const router = Router();
 
+router.get('/', usersController.getUsers);
+router.get('/:uId', usersController.getUserById)
+router.put('/premium/:uId', passportCall('jwt', { strategyType: 'jwt', sessions: false }), authRoles('admin'), usersController.changeUserRole);
+router.delete('/:uId', passportCall('jwt', { strategyType: 'jwt', sessions: false }), authRoles(["admin"]), usersController.deleteUser);
 
-router.put('/premium/:uid', passportCall('jwt', { strategyType: 'jwt', sessions: false }), authRoles('admin'), /* usersController.changeUserRole */);
-
-
-//Definir usersController, services, etc y darles la logica para el ultimo punto de la consigna.
 
 export default router;

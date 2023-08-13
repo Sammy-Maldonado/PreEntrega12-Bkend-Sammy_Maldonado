@@ -6,7 +6,7 @@ const getCarts = async (req, res) => {
     const carts = await cartsService.getAllCarts();
     res.status(200).send({ status: "success", payload: carts });
   } catch (error) {
-    res.status(500).send({ status: "error", error: 'Error interno del servidor' })
+    res.status(500).send({ status: "error", error: 'Error interno del servidor' });
   }
 }
 
@@ -116,7 +116,8 @@ const addProductToCart = async (req, res) => {
 
     const updatedCart = await cartsService.addProductToCart(cid, pid, quantity);
     if (updatedCart) {
-      res.status(200).send({ status: "success", message: `Producto agregado correctamente al carrito '${req.params.cid}'`, payload: updatedCart })
+      const newUpdatedCart = await cartsService.getCartById(cid);
+      res.status(200).send({ status: "success", message: `Producto agregado correctamente al carrito '${req.params.cid}'`, payload: newUpdatedCart })
     } else {
       res.status(400).send({ status: "error", error: error.message })
     }
@@ -140,7 +141,8 @@ const updateProductQuantity = async (req, res) => {
 
     const updatedProductQuantity = await cartsService.updateProductQuantity(cid, pid, quantity);
     if (updatedProductQuantity) {
-      res.status(200).send({ status: "success", message: `Cantidad actualizada correctamente`, payload: updatedProductQuantity })
+      const newUpdatedProductQuantity = await cartsService.getCartById(cid);
+      res.status(200).send({ status: "success", message: `Cantidad actualizada correctamente`, payload: newUpdatedProductQuantity })
     } else {
       res.status(400).send({ status: "error", error: error.message })
     }
