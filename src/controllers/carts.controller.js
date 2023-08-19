@@ -184,7 +184,7 @@ const purchaseCart = async (req, res) => {
 
       if (quantityInCart > product.stock) {
         // El producto no tiene suficiente stock
-        productsNotPurchased.push(item._id);
+        productsNotPurchased.push(item.product._id);
       } else {
         // Restar la cantidad comprada del stock del producto
         product.stock -= quantityInCart;

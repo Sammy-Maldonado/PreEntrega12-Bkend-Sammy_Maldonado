@@ -4,6 +4,8 @@ import cookieParser from 'cookie-parser';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import config from './config.js';
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUiExpress from 'swagger-ui-express';
 
 import viewsRouter from './routes/views.router.js'
 import productsRouter from './routes/products.router.js';
@@ -34,6 +36,20 @@ app.use((req, res, next) => {
   req.io = io;
   next();
 })
+
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.1',
+    info: {
+      title: 'Programa-T',
+      desciption: 'Documentacion para API principal de Programa-T'
+    }
+  },
+  apis: [`${__dirname}/docs/**/*.yaml`]
+}
+
+const specs = swaggerJSDoc(swaggerOptions);
+app.use('/docs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs));
 
 //Handlebars
 app.engine('handlebars', handlebars.engine());

@@ -1,6 +1,7 @@
 class CreateProductDTO {
   constructor(product, user) {
     this.title = product.title,
+    this.description = product.description,
     this.price = product.price,
     this.code = product.code,
     this.stock = product.stock,

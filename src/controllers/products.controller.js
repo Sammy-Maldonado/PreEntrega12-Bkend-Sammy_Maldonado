@@ -62,7 +62,7 @@ const getProductById = async (req, res) => {
     if (product) {
       res.send({ status: "success", message: `El producto '${product.title}', se ha cargado correctamente`, payload: product });
     } else {
-      res.status(400).send({ status: "error", error: 'Producto no encontrado' });
+      res.status(404).send({ status: "error", error: 'Producto no encontrado' });
     }
   } catch (error) {
     console.log(error);
@@ -82,8 +82,9 @@ const updateProduct = async (req, res) => {
     }
 
     const result = await productsService.updateProduct(productId, productToUpdate)
+    const newProduct = await productsService.getProductById(productId)
     console.log(result);
-    res.send({ status: "success", message: "Producto actualizado con éxito" })
+    res.send({ status: "success", message: "Producto actualizado con éxito", payload: newProduct})
   } catch (error) {
     console.log(error);
     res.status(400).send('Producto no encontrado')
@@ -102,9 +103,10 @@ const deleteProduct = async (req, res) => {
     //Verificando que el "admin" pueda borrar cualquier producto aunque no sea owner y que el usuario premium solo pueda borrar los productos que le pertenecen
 
     if (req.user.role === "admin" || (req.user.role === "premium" && productToDelete.owner === req.user.email)) {
+      const deletedProduct = await productsService.getProductById(productId);
       const result = await productsService.deleteProduct(productId);
       console.log(result);
-      res.send({ status: "success", message: "Su producto ha sido eliminado con éxito" })
+      res.send({ status: "success", message: "Su producto ha sido eliminado con éxito", payload: deletedProduct })
     } else {
       return res.status(403).send({ status: "error", error: "Acceso Denegado" });
     }
